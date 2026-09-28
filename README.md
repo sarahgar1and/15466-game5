@@ -2,9 +2,10 @@
 
 Author: Sarah Garland (sgarlan2)
 
-Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
+Design: Two ants at a picnic compete for cookie crumbs.
 
-Networking: (TODO: How does your game implement client/server multiplayer? What messages are transmitted? Where in the code?)
+Networking: `Game.cpp` has send/recieve message functions. The server holds the game state 
+(player ant positions, cookie crumb position, and points). The server sends the game state to clients. The server updates the game state based on inputs the clients send. 
 
 Screen Shot:
 
@@ -12,7 +13,8 @@ Screen Shot:
 
 How To Play:
 
-- `WASD` to move
+- `WASD` to move (movement is similar to Snake, where you have to fully cycle to turn around)
+- Walk into crumbs to eat
 
 
 This game was built with [NEST](NEST.md).

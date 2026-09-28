@@ -22,8 +22,9 @@ struct PlayMode : Mode {
 	Scene scene;
 	Scene::Transform *ant1 = nullptr;
 	Scene::Transform *ant2 = nullptr;
-
+	Scene::Transform *crumb = nullptr;
 	glm::quat ant1_rotation;
+	glm::quat ant2_rotation;
 	glm::vec3 camera_offset;
 	glm::quat camera_rotation;
 

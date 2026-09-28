@@ -139,8 +139,9 @@ void Game::update(float elapsed) {
 	}
 
 	//collision resolution:
-	// for (auto &p1 : players) {
-		//player/player collisions:
+	for (auto &p1 : players) {
+		// player/player collisions:
+
 		// for (auto &p2 : players) {
 		// 	if (&p1 == &p2) break;
 		// 	glm::vec2 p12 = p2.position - p1.position;
@@ -148,30 +149,36 @@ void Game::update(float elapsed) {
 		// 	if (len2 > (2.0f * PlayerRadius) * (2.0f * PlayerRadius)) continue;
 		// 	if (len2 == 0.0f) continue;
 		// 	glm::vec2 dir = p12 / std::sqrt(len2);
-		// 	//mirror velocity to be in separating direction:
-		// 	glm::vec2 v12 = p2.velocity - p1.velocity;
-		// 	glm::vec2 delta_v12 = dir * glm::max(0.0f, -1.75f * glm::dot(dir, v12));
-		// 	p2.velocity += 0.5f * delta_v12;
-		// 	p1.velocity -= 0.5f * delta_v12;
 		// }
-		//player/arena collisions:
+
+		// player/arena collisions:
+
 		// if (p1.position.x < ArenaMin.x + PlayerRadius) {
 		// 	p1.position.x = ArenaMin.x + PlayerRadius;
-		// 	p1.velocity.x = std::abs(p1.velocity.x);
 		// }
 		// if (p1.position.x > ArenaMax.x - PlayerRadius) {
 		// 	p1.position.x = ArenaMax.x - PlayerRadius;
-		// 	p1.velocity.x =-std::abs(p1.velocity.x);
 		// }
 		// if (p1.position.y < ArenaMin.y + PlayerRadius) {
 		// 	p1.position.y = ArenaMin.y + PlayerRadius;
-		// 	p1.velocity.y = std::abs(p1.velocity.y);
 		// }
 		// if (p1.position.y > ArenaMax.y - PlayerRadius) {
 		// 	p1.position.y = ArenaMax.y - PlayerRadius;
-		// 	p1.velocity.y =-std::abs(p1.velocity.y);
 		// }
-	// }
+
+		// player/crumb collision:
+		glm::vec2 p1c = crumb_pos - p1.position;
+		float len2 = glm::length2(p1c);
+		if (len2 > (2.0f * PlayerRadius) * (2.0f * CrumbRadius)) continue;
+		if (len2 == 0.0f) continue;
+		// 
+		std::cout << p1.name << " collided with the crumb!" << std::endl;
+		p1.crumbs += 1;
+		// Generate new crumb position
+		crumb_pos.x = glm::mix(ArenaMin.x + 2.0f * CrumbRadius, ArenaMax.x - 2.0f * CrumbRadius, 0.4f + 0.2f * mt() / float(mt.max()));
+		crumb_pos.y = glm::mix(ArenaMin.y + 2.0f * CrumbRadius, ArenaMax.y - 2.0f * CrumbRadius, 0.4f + 0.2f * mt() / float(mt.max()));
+
+	}
 
 }
 
@@ -207,6 +214,9 @@ void Game::send_state_message(Connection *connection_, Player *connection_player
 		if (&player == connection_player) continue;
 		send_player(player);
 	}
+
+	// crumb position
+	connection.send(crumb_pos);
 
 	//compute the message size and patch into the message header:
 	uint32_t size = uint32_t(connection.send_buffer.size() - mark);
@@ -256,6 +266,8 @@ bool Game::recv_state_message(Connection *connection_) {
 			player.name += c;
 		}
 	}
+
+	read(&crumb_pos);
 
 	if (at != size) throw std::runtime_error("Trailing data in state message.");
 

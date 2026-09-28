@@ -44,11 +44,14 @@ PlayMode::PlayMode(Client &client_) : scene(*picnic_scene), client(client_) {
 	for (auto &transform : scene.transforms) {
 		if (transform.name == "AntBody1") ant1 = &transform;
 		if (transform.name == "AntBody2") ant2 = &transform;
+		if (transform.name == "CookieCrumb") crumb = &transform;
 	}
 	if (ant1 == nullptr) throw std::runtime_error("AntBody1 not found.");
 	if (ant2 == nullptr) throw std::runtime_error("AntBody2 not found.");
+	if (crumb == nullptr) throw std::runtime_error("CookieCrumb not found.");
 
 	ant1_rotation = ant1->rotation;
+	ant2_rotation = ant2->rotation;
 
 	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
 	camera = &scene.cameras.front();
@@ -159,10 +162,30 @@ void PlayMode::update(float elapsed) {
 		ant1->rotation = ant1_rotation;
 	}
 
-	camera->transform->position = ant1->position + (ant1->rotation * camera_offset);
-	
+	camera->transform->position = ant1->position + (camera_offset);
 	
 	// Player 2 (opponent)
+	if (game.players.size() >= 2) {
+		auto &p2 = *std::next(game.players.begin());
+		ant2->position = glm::vec3(p2.position.x, p2.position.y, ant2->position.z);
+		if (p2.dir.x < 0.0f){
+			ant2->rotation = ant2_rotation * glm::angleAxis(
+			glm::radians(90.0f),glm::vec3(0.0f, 0.0f, 1.0f));
+		} else if (p1.dir.x > 0.0f){
+			ant2->rotation = ant2_rotation * glm::angleAxis(
+			glm::radians(-90.0f),glm::vec3(0.0f, 0.0f, 1.0f));
+		} else if (p1.dir.y < 0.0f){
+			ant2->rotation = ant2_rotation * glm::angleAxis(
+			glm::radians(180.0f),glm::vec3(0.0f, 0.0f, 1.0f));
+		} else if (p1.dir.y > 0.0f){
+			ant2->rotation = ant2_rotation;
+		}
+	}	
+
+	// Crumb
+	crumb->position.x = game.crumb_pos.x;
+	crumb->position.y = game.crumb_pos.y;
+	
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size) {

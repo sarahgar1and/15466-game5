@@ -42,6 +42,7 @@ struct Player {
 	glm::vec2 position = glm::vec2(0.0f, 0.0f);
 	// Left: dir.x < 0, Right: dir.x > 0, Up: dir.y > 0, Down: dir.y < 0
 	glm::vec2 dir = glm::vec2(1.0f, 0.0f);
+	int crumbs = 0;
 
 	std::string name = "";
 };
@@ -70,7 +71,9 @@ struct Game {
 	//player constants:
 	inline static constexpr float PlayerRadius = 0.06f;
 	inline static constexpr float PlayerSpeed = 2.0f;
-	inline static constexpr float PlayerAccelHalflife = 0.25f;
+
+	glm::vec2 crumb_pos = glm::vec2(-0.75f, -1.0f);
+	inline static constexpr float CrumbRadius = 0.06f;
 	
 
 	//---- communication helpers ----
