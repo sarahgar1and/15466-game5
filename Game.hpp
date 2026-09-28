@@ -40,9 +40,9 @@ struct Player {
 
 	//player state (sent from server):
 	glm::vec2 position = glm::vec2(0.0f, 0.0f);
-	glm::vec2 velocity = glm::vec2(0.0f, 0.0f);
+	// Left: dir.x < 0, Right: dir.x > 0, Up: dir.y > 0, Down: dir.y < 0
+	glm::vec2 dir = glm::vec2(1.0f, 0.0f);
 
-	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
 	std::string name = "";
 };
 

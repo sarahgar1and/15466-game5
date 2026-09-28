@@ -2,6 +2,7 @@
 
 #include "Connection.hpp"
 #include "Game.hpp"
+#include "Scene.hpp"
 
 #include <glm/glm.hpp>
 
@@ -18,6 +19,13 @@ struct PlayMode : Mode {
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
 	//----- game state -----
+	Scene scene;
+	Scene::Transform *ant1 = nullptr;
+	Scene::Transform *ant2 = nullptr;
+
+	glm::quat ant1_rotation;
+	glm::vec3 camera_offset;
+	glm::quat camera_rotation;
 
 	//input tracking for local player:
 	Player::Controls controls;
@@ -30,5 +38,8 @@ struct PlayMode : Mode {
 
 	//connection to server:
 	Client &client;
+
+	//camera:
+	Scene::Camera *camera = nullptr;
 
 };
