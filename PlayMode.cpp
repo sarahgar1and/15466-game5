@@ -161,6 +161,7 @@ void PlayMode::update(float elapsed) {
 	} else if (p1.dir.y > 0.0f){
 		ant1->rotation = ant1_rotation;
 	}
+	// std::cout << ant1->position.x << " , " << ant1->position.y << std::endl;
 
 	camera->transform->position = ant1->position + (camera_offset);
 	

@@ -65,15 +65,15 @@ struct Game {
 	inline static constexpr float Tick = 1.0f / 30.0f;
 
 	//arena size:
-	inline static constexpr glm::vec2 ArenaMin = glm::vec2(-0.75f, -1.0f);
-	inline static constexpr glm::vec2 ArenaMax = glm::vec2( 0.75f,  1.0f);
+	inline static constexpr glm::vec2 ArenaMin = glm::vec2(-4.5f, -4.5f);
+	inline static constexpr glm::vec2 ArenaMax = glm::vec2( 4.5f,  4.5f);
 
 	//player constants:
-	inline static constexpr float PlayerRadius = 0.06f;
+	inline static constexpr float PlayerRadius = 0.09f;
 	inline static constexpr float PlayerSpeed = 2.0f;
 
 	glm::vec2 crumb_pos = glm::vec2(-0.75f, -1.0f);
-	inline static constexpr float CrumbRadius = 0.06f;
+	inline static constexpr float CrumbRadius = 0.6f;
 	
 
 	//---- communication helpers ----

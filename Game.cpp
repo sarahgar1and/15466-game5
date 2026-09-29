@@ -172,11 +172,11 @@ void Game::update(float elapsed) {
 		if (len2 > (2.0f * PlayerRadius) * (2.0f * CrumbRadius)) continue;
 		if (len2 == 0.0f) continue;
 		// 
-		std::cout << p1.name << " collided with the crumb!" << std::endl;
+		// std::cout << p1.name << " collided with the crumb!" << std::endl;
 		p1.crumbs += 1;
 		// Generate new crumb position
-		crumb_pos.x = glm::mix(ArenaMin.x + 2.0f * CrumbRadius, ArenaMax.x - 2.0f * CrumbRadius, 0.4f + 0.2f * mt() / float(mt.max()));
-		crumb_pos.y = glm::mix(ArenaMin.y + 2.0f * CrumbRadius, ArenaMax.y - 2.0f * CrumbRadius, 0.4f + 0.2f * mt() / float(mt.max()));
+		crumb_pos.x = glm::mix(ArenaMin.x + 2.0f * CrumbRadius, ArenaMax.x - 2.0f * CrumbRadius, mt() / float(mt.max()));
+		crumb_pos.y = glm::mix(ArenaMin.y + 2.0f * CrumbRadius, ArenaMax.y - 2.0f * CrumbRadius, mt() / float(mt.max()));
 
 	}
 
