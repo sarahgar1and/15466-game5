@@ -164,21 +164,31 @@ void PlayMode::update(float elapsed) {
 	// std::cout << ant1->position.x << " , " << ant1->position.y << std::endl;
 
 	camera->transform->position = ant1->position + (camera_offset);
+
+	// Find opponent
+	bool found = false;
+	Player *p2 = nullptr;
+	for (auto pi = game.players.begin(); pi != game.players.end(); ++pi) {
+		if (pi->opponent_name == p1.name) {
+			found = true;
+			p2 = &*pi;
+			break;
+		}
+	}
 	
 	// Player 2 (opponent)
-	if (game.players.size() >= 2) {
-		auto &p2 = *std::next(game.players.begin());
-		ant2->position = glm::vec3(p2.position.x, p2.position.y, ant2->position.z);
-		if (p2.dir.x < 0.0f){
+	if (found) {
+		ant2->position = glm::vec3(p2->position.x, p2->position.y, ant2->position.z);
+		if (p2->dir.x < 0.0f){
 			ant2->rotation = ant2_rotation * glm::angleAxis(
 			glm::radians(90.0f),glm::vec3(0.0f, 0.0f, 1.0f));
-		} else if (p1.dir.x > 0.0f){
+		} else if (p2->dir.x > 0.0f){
 			ant2->rotation = ant2_rotation * glm::angleAxis(
 			glm::radians(-90.0f),glm::vec3(0.0f, 0.0f, 1.0f));
-		} else if (p1.dir.y < 0.0f){
+		} else if (p2->dir.y < 0.0f){
 			ant2->rotation = ant2_rotation * glm::angleAxis(
 			glm::radians(180.0f),glm::vec3(0.0f, 0.0f, 1.0f));
-		} else if (p1.dir.y > 0.0f){
+		} else if (p2->dir.y > 0.0f){
 			ant2->rotation = ant2_rotation;
 		}
 	}	

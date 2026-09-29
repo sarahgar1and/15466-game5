@@ -79,14 +79,28 @@ Game::Game() : mt(0x15466666) {
 }
 
 Player *Game::spawn_player() {
+	// Pair players into opponents
+	int opponent_number = 0;
+	if (next_player_number % 2 == 0){ 
+		// Opponent is previous player
+		opponent_number = next_player_number - 1;
+	}
+	else {
+		// Needs to wait for another player to join
+		opponent_number = next_player_number + 1;
+	}
 	players.emplace_back();
 	Player &player = players.back();
+
+	player.opponent_name = "Player " + std::to_string(opponent_number);
 
 	//random point in the middle area of the arena:
 	player.position.x = glm::mix(ArenaMin.x + 2.0f * PlayerRadius, ArenaMax.x - 2.0f * PlayerRadius, 0.4f + 0.2f * mt() / float(mt.max()));
 	player.position.y = glm::mix(ArenaMin.y + 2.0f * PlayerRadius, ArenaMax.y - 2.0f * PlayerRadius, 0.4f + 0.2f * mt() / float(mt.max()));
 
 	player.name = "Player " + std::to_string(next_player_number++);
+
+	std::cout << player.name << "'s opponent is " << player.opponent_name << std::endl;
 
 	return &player;
 }
@@ -144,36 +158,42 @@ void Game::update(float elapsed) {
 
 		// for (auto &p2 : players) {
 		// 	if (&p1 == &p2) break;
-		// 	glm::vec2 p12 = p2.position - p1.position;
-		// 	float len2 = glm::length2(p12);
-		// 	if (len2 > (2.0f * PlayerRadius) * (2.0f * PlayerRadius)) continue;
-		// 	if (len2 == 0.0f) continue;
-		// 	glm::vec2 dir = p12 / std::sqrt(len2);
+		// 	if (p1.opponent_name == p2.name){
+		// 		assert(p2.opponent_name == p1.name);
+
+		// 		glm::vec2 p12 = p2.position - p1.position;
+		// 		float len2 = glm::length2(p12);
+		// 		if (len2 > (2.0f * PlayerRadius) * (2.0f * PlayerRadius)) continue;
+		// 		if (len2 == 0.0f) continue;
+		// 		std::cout << p1.name << " collided with opponent " << p2.name << std::endl;
+		// 	}
+			
 		// }
 
 		// player/arena collisions:
-
-		// if (p1.position.x < ArenaMin.x + PlayerRadius) {
-		// 	p1.position.x = ArenaMin.x + PlayerRadius;
-		// }
-		// if (p1.position.x > ArenaMax.x - PlayerRadius) {
-		// 	p1.position.x = ArenaMax.x - PlayerRadius;
-		// }
-		// if (p1.position.y < ArenaMin.y + PlayerRadius) {
-		// 	p1.position.y = ArenaMin.y + PlayerRadius;
-		// }
-		// if (p1.position.y > ArenaMax.y - PlayerRadius) {
-		// 	p1.position.y = ArenaMax.y - PlayerRadius;
-		// }
+		if (p1.position.x < ArenaMin.x + PlayerRadius) {
+			p1.position.x = ArenaMin.x + PlayerRadius;
+		}
+		if (p1.position.x > ArenaMax.x - PlayerRadius) {
+			p1.position.x = ArenaMax.x - PlayerRadius;
+		}
+		if (p1.position.y < ArenaMin.y + PlayerRadius) {
+			p1.position.y = ArenaMin.y + PlayerRadius;
+		}
+		if (p1.position.y > ArenaMax.y - PlayerRadius) {
+			p1.position.y = ArenaMax.y - PlayerRadius;
+		}
 
 		// player/crumb collision:
 		glm::vec2 p1c = crumb_pos - p1.position;
 		float len2 = glm::length2(p1c);
 		if (len2 > (2.0f * PlayerRadius) * (2.0f * CrumbRadius)) continue;
 		if (len2 == 0.0f) continue;
-		// 
+		 
 		// std::cout << p1.name << " collided with the crumb!" << std::endl;
+
 		p1.crumbs += 1;
+
 		// Generate new crumb position
 		crumb_pos.x = glm::mix(ArenaMin.x + 2.0f * CrumbRadius, ArenaMax.x - 2.0f * CrumbRadius, mt() / float(mt.max()));
 		crumb_pos.y = glm::mix(ArenaMin.y + 2.0f * CrumbRadius, ArenaMax.y - 2.0f * CrumbRadius, mt() / float(mt.max()));
@@ -199,9 +219,13 @@ void Game::send_state_message(Connection *connection_, Player *connection_player
 	auto send_player = [&](Player const &player) {
 		connection.send(player.position);
 		connection.send(player.dir);
-	
 		//NOTE: can't just 'send(name)' because player.name is not plain-old-data type.
 		//effectively: truncates player name to 255 chars
+
+		uint8_t opponent_len = uint8_t(std::min< size_t >(255, player.opponent_name.size()));
+		connection.send(opponent_len);
+		connection.send_buffer.insert(connection.send_buffer.end(), player.opponent_name.begin(), player.opponent_name.begin() + opponent_len);
+
 		uint8_t len = uint8_t(std::min< size_t >(255, player.name.size()));
 		connection.send(len);
 		connection.send_buffer.insert(connection.send_buffer.end(), player.name.begin(), player.name.begin() + len);
@@ -256,6 +280,16 @@ bool Game::recv_state_message(Connection *connection_) {
 		Player &player = players.back();
 		read(&player.position);
 		read(&player.dir);
+		
+		uint8_t opponent_name_len;
+		read(&opponent_name_len);
+		player.opponent_name = "";
+		for (uint8_t n = 0; n < opponent_name_len; ++n) {
+			char c;
+			read(&c);
+			player.opponent_name += c;
+		}
+
 		uint8_t name_len;
 		read(&name_len);
 		//n.b. would probably be more efficient to directly copy from recv_buffer, but I think this is clearer:
