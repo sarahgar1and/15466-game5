@@ -13,7 +13,7 @@ Screen Shot:
 
 How To Play:
 
-- `WASD` to move (movement is similar to Snake, where you have to fully cycle to turn around)
+- `WASD` to move (movement is similar to Snake where you have to fully cycle to turn around)
 - Walk into crumbs to eat
 
 
